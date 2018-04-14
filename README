@@ -1,0 +1,39 @@
+1. Kernel configuration files
+   arch/arm/configs:
+   Nokia 1 (TA-1047/TA-1060/TA-1056/TA-1079/TA-1066): FRT_defconfig
+
+2. How to build
+
+  Prerequisites:
+
+    * ramdisk.img - root fs
+
+    * mkbootimg - boot.img generator
+
+    * The ARM cross-compiler
+      We recommend getting the CodeSourcery Lite compiler.
+      Or, you can also use prebuild executable binary which is included in
+      standard Android tree.
+
+  Step 1: Build Kernel (zImage)
+    $ cd kernel-3.18
+
+    $ export ARCH=arm
+
+    $ export CROSS_COMPILE=<cross compile path with prefix>
+      NOTE: Please set the location and the prefix of the ARM cross-compiler.
+	        Please use the absolute path for this.
+	  ex) <cross compiler path>/prebuilts/gcc/linux-x86/arm/arm-eabi-6.3.1/bin/arm-eabi-
+
+    $ make FRT_defconfig O=<output path>
+      NOTE: Please set a configuration file you want to build.
+
+    $ make O=<output path>
+
+    You can see arch/arm/boot/zImage-dtb if you succeed in building the kernel.
+
+  Step 2: Assembling the boot.img
+    (In the output directory)
+	$ mkbootimg --kernel arch/arm/boot/zImage-dtb --cmdline "bootopt=64S3,32N2,32N2 buildvariant=userdebug" \
+	  --base 0x40000000 --kernel_offset 0x00008000 --ramdisk_offset 0x04000000 --tags_offset 0xE000000 \
+	  --ramdisk ramdisk.img --output boot.img
